@@ -18,7 +18,9 @@ const TaskDialog = ({ task }) => {
   const navigate = useNavigate();
 
   const duplicateHandler = () => {};
-  const deleteClicks = () => {};
+  const deleteClicks = () => {
+    setOpenDialog(true);
+  };
   const deleteHandler = () => {};
 
   const items = [

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Textbox from "../components/Textbox";
 import Button from "../components/Button";
+import { useLoginMutation } from "../redux/slices/api/authApiSlice";
 // import { useSelector } from "react-redux";
 
 const Login = () => {
@@ -17,9 +18,19 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const [login, { isLoading }] = useLoginMutation();
+
   const submitHandler = async (data) => {
-    console.log("submit", data);
+    try {
+      const result = await login(data).unwrap();
+      console.log(result);
+    } catch (err) {
+
+      console.log(err);
+      toast.error(err.data.message);
+    }
   };
+
 
   useEffect(() => {
     user && navigate("/dashboard");
