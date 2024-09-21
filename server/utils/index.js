@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 const dbConnection = async () => {
@@ -12,7 +13,7 @@ const dbConnection = async () => {
 export default dbConnection;
 
 export const createJWT = (res, userId) => {
-  const token = jwt.sign({ userID }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 
