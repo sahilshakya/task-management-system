@@ -7,20 +7,34 @@ import UserList from "./UserList";
 import SelectList from "../SelectList";
 import { BiImages } from "react-icons/bi";
 import Button from "../Button";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { app } from "../../utils/firebase"; 
+import { useCreateTaskMutation, useUpdateTaskMutation } from "../../redux/slices/api/taskApiSlice";
+import { toast } from "sonner";
+import { dateFormatter } from "../../utils";
+
 
 const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
 const uploadedFileURLs = [];
 
-const AddTask = ({ open, setOpen }) => {
-  const task = "";
+const AddTask = ({ open, setOpen, task }) => {
+  const defaultValues = {
+    title: task?.title || "",
+    team: [],
+    stage: "",
+    priority: "",
+    date: dateFormatter(task?.date || new Date()),
+    assets: [],
+  };
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({defaultValues});
+
   const [team, setTeam] = useState(task?.team || []);
   const [stage, setStage] = useState(task?.stage?.toUpperCase() || LISTS[0]);
   const [priority, setPriority] = useState(
@@ -29,10 +43,79 @@ const AddTask = ({ open, setOpen }) => {
   const [assets, setAssets] = useState([]);
   const [uploading, setUploading] = useState(false);
 
-  const submitHandler = () => {};
+  const [createTask, {isLoading}] = useCreateTaskMutation();
+  const [updateTask, {isLoading: isUpdating}] = useUpdateTaskMutation();
+  const URLS = task?.assets ? [...task.assets]:[];
+
+  const submitHandler = async(data) => {
+      for (const file of assets){
+        setUploading(true);
+        try{
+          await uploadFile(file);
+        }catch(err){
+          console.log(err.message);
+          return;
+        }finally{
+          setUploading(false);
+        }
+
+        };
+
+        try{
+          const newData = {
+            ...data,
+            assets: [...URLS, ...uploadedFileURLs],
+            team,
+            stage,
+            priority,
+          };
+           
+          const res = task?._id ? 
+          await updateTask({...newData, id: task?._id}).unwrap() : 
+          await createTask(newData).unwrap();
+
+          toast.success(res.message);
+          setOpen(false);
+          window.location.reload();
+            
+        }catch(err){
+          toast.error(err?.data?.message || err?.message);
+        }
+
+    }
 
   const handleSelect = (e) => {
     setAssets(e.target.files);
+  };
+
+
+  const uploadFile = async (file)=>{
+    const storage = getStorage(app);
+
+    const name = new Date().getTime() + file.name;
+    const storageRef = ref(storage, name);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          console.log("Uploading");
+        },
+        (error) => {
+          reject(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadUrl) => {
+            uploadedFileURLs.push(downloadUrl);
+            resolve();
+          })
+          .catch((error) => {
+            reject(error);
+            })
+        }
+      );
+    });
   };
 
   return (
@@ -58,6 +141,7 @@ const AddTask = ({ open, setOpen }) => {
             />
 
             <UserList setTeam={setTeam} team={team} />
+            
 
             <div className="flex gap-4">
               <SelectList
@@ -135,5 +219,6 @@ const AddTask = ({ open, setOpen }) => {
     </>
   );
 };
+
 
 export default AddTask;
