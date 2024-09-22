@@ -5,28 +5,42 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { getInitials } from "../utils";
+import { toast } from "sonner";
+import { useLogoutMutation } from "../redux/slices/api/authApiSlice";
+import { logout } from "../redux/slices/authSlice";
+import AddUser from "./AddUser";
+import { ChangePassword } from "./ChangePassword";
 
 const UserAvatar = () => {
   const [open, setOpen] = useState(false);
   const [openPassword, setOpenPassword] = useState(false);
-  // const { user } = useSelector((state) => state.auth);
-  const user = "sahil Shakya";
+  const { user } = useSelector((state) => state.auth);
+  const [logoutUser] = useLogoutMutation();
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const logoutHandler = () => {
-    console.log("logout");
-    // Add your logout logic here
+  const logoutHandler = async () => {
+  try {
+    await logoutUser().unwrap();
+
+    dispatch(logout());
+    navigate("/log-in");
+  } catch (err) {
+    toast.error("Error logging out");
+  }
   };
 
   return (
+    <>
     <div>
       <Menu as="div" className="relative inline-block text-left">
         {({ open }) => (
           <>
             <Menu.Button className="w-10 h-10 2xl:w-12 2xl:h-12 flex items-center justify-center rounded-full bg-blue-600">
               <span className="text-white font-semibold">
-                {getInitials(user)}
+                {getInitials(user?.name)}
               </span>
             </Menu.Button>
             <Transition
@@ -88,6 +102,11 @@ const UserAvatar = () => {
         )}
       </Menu>
     </div>
+
+    <AddUser open={open} setOpen={setOpen} userData={user}/>
+    <ChangePassword open={openPassword} setOpen={setOpenPassword}/>
+
+    </>
   );
 };
 

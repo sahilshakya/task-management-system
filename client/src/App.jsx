@@ -16,9 +16,7 @@ import Users from "./pages/Users";
 import { setOpenSidebar } from "./redux/slices/authSlice";
 
 function Layout() {
-  // const { user } = useSelector((state) => state.auth);
-
-  const user = "sahil";
+  const { user } = useSelector((state) => state.auth);
 
   const location = useLocation();
 

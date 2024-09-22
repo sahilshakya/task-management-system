@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-const Button = ({ icon, className, label, type, onClick = () => {} }) => {
+const Button = ({ icon=undefined, className, label, type, onClick = () => {} }) => {
   return (
     <button
       type={type || "button"}

@@ -9,6 +9,8 @@ import { Menu, Transition } from "@headlessui/react";
 import AddTask from "./AddTask";
 import AddSubTask from "./AddSubTask";
 import ConfirmatioDialog from "../Dialogs";
+import { useDuplicateTaskMutation, useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice";
+import { toast } from "sonner";
 
 const TaskDialog = ({ task }) => {
   const [open, setOpen] = useState(false);
@@ -16,14 +18,44 @@ const TaskDialog = ({ task }) => {
   const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
+  
+  const [deleteTask] = useTrashTaskMutation();
+  const [duplicateTask] = useDuplicateTaskMutation();
 
-  const duplicateHandler = () => {};
+  const duplicateHandler = async() => {
+          try {
+            const res = await duplicateTask(task?._id).unwrap();
+
+            toast.success(res?.message);
+            setOpenDialog(false);
+            window.location.reload();
+            
+          } catch (err) {
+            console.log(err);
+            toast.error(err?.data?.message || err.error);
+          }
+        };
   const deleteClicks = () => {
     setOpenDialog(true);
   };
-  const deleteHandler = () => {};
+  const deleteHandler = async() => {
+    try {
+      const res = await deleteTask({
+        id:task?._id,
+        isTrashed:"trash"
+      }).unwrap();
 
-  const items = [
+      toast.success(res?.message);
+      setOpenDialog(false);
+      window.location.reload();
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.data?.message || err.error);
+
+    }
+  };
+
+  const ellipseMenu = [
     {
       label: "Open Task",
       icon: <AiTwotoneFolderOpen className="mr-2 h-5 w-5" aria-hidden="true" />,
@@ -42,7 +74,7 @@ const TaskDialog = ({ task }) => {
     {
       label: "Duplicate",
       icon: <HiDuplicate className="mr-2 h-5 w-5" aria-hidden="true" />,
-      onClick: () => duplicateHanlder(),
+      onClick: () => duplicateHandler(),
     },
   ];
 
@@ -65,7 +97,7 @@ const TaskDialog = ({ task }) => {
           >
             <Menu.Items className="absolute p-4 right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
               <div className="px-1 py-1 space-y-2">
-                {items.map((el) => (
+                {ellipseMenu.map((el) => (
                   <Menu.Item key={el.label}>
                     {({ active }) => (
                       <button
