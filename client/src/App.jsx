@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import Trash from "./pages/Trash";
 import Users from "./pages/Users";
 import { setOpenSidebar } from "./redux/slices/authSlice";
+import { Settings } from "./pages/Settings";
 
 function Layout() {
   const { user } = useSelector((state) => state.auth);
@@ -106,6 +107,7 @@ function App() {
           <Route path="/team" element={<Users />} />
           <Route path="/trashed" element={<Trash />} />
           <Route path="/task/:id" element={<TaskDetails />} />
+          <Route path="/settings" element={<Settings />} />
         </Route>
 
         <Route path="/log-in" element={<Login />} />

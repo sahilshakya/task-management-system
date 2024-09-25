@@ -26,19 +26,20 @@ const Table = ({ tasks }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [sortOrder, setSortOrder] = useState({ key: "", order: "asc" }); // State for sorting
 
-  const [deleteTask]= useTrashTaskMutation();
+  const [deleteTask] = useTrashTaskMutation();
 
   const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
   };
 
-  const deleteHandler = async() => {
+  const deleteHandler = async () => {
     try {
       const res = await deleteTask({
-        id:selected,
-        isTrashed:"trash"
+        id: selected,
+        isTrashed: "trash",
       }).unwrap();
 
       toast.success(res?.message);
@@ -47,9 +48,7 @@ const Table = ({ tasks }) => {
     } catch (err) {
       console.log(err);
       toast.error(err?.data?.message || err.error);
-
     }
-
   };
 
   const editTaskHandler = (id) => {
@@ -57,12 +56,58 @@ const Table = ({ tasks }) => {
     setOpenEdit(true);
   };
 
+  // Quick Sort Algorithm
+  const quickSort = (arr, key, order = "asc") => {
+    if (arr.length < 2) {
+      return arr;
+    }
+    const pivot = arr[Math.floor(arr.length / 2)];
+    const left = [];
+    const right = [];
+
+    arr.forEach((item) => {
+      const comparison =
+        typeof item[key] === "string"
+          ? item[key].localeCompare(pivot[key]) // Compare strings
+          : item[key] - pivot[key]; // Compare numbers
+
+      if (comparison < 0) {
+        order === "asc" ? left.push(item) : right.push(item);
+      } else if (comparison > 0) {
+        order === "asc" ? right.push(item) : left.push(item);
+      }
+    });
+
+    return [
+      ...quickSort(left, key, order),
+      pivot,
+      ...quickSort(right, key, order),
+    ];
+  };
+
+  // Apply sorting based on the selected key
+  const sortedTasks = sortOrder.key
+    ? quickSort([...tasks], sortOrder.key, sortOrder.order)
+    : tasks;
+
+  const handleSort = (key) => {
+    const order = sortOrder.order === "asc" ? "desc" : "asc"; // Toggle order
+    setSortOrder({ key, order });
+  };
+
   const TableHeader = () => (
     <thead className="w-full border-b border-gray-300">
-      <tr className="w-full text-black  text-left">
-        <th className="py-2">Task Title</th>
-        <th className="py-2">Priority</th>
-        <th className="py-2 line-clamp-1">Created At</th>
+      <tr className="w-full text-black text-left">
+        <th className="py-2 cursor-pointer" onClick={() => handleSort("title")}>
+          Task Title ⬆️⬇️
+        </th>
+        <th
+          className="py-2 cursor-pointer"
+          onClick={() => handleSort("priority")}
+        >
+          Priority
+        </th>
+        <th className="py-2 cursor-pointer">Created At</th>
         <th className="py-2">Assets</th>
         <th className="py-2">Team</th>
       </tr>
@@ -138,7 +183,6 @@ const Table = ({ tasks }) => {
           label="Edit"
           type="button"
           onClick={() => editTaskHandler(task)}
-
         />
 
         <Button
@@ -150,14 +194,15 @@ const Table = ({ tasks }) => {
       </td>
     </tr>
   );
+
   return (
     <>
-      <div className="bg-white  px-2 md:px-4 pt-4 pb-9 shadow-md rounded">
+      <div className="bg-white px-2 md:px-4 pt-4 pb-9 shadow-md rounded">
         <div className="overflow-x-auto">
-          <table className="w-full ">
+          <table className="w-full">
             <TableHeader />
             <tbody>
-              {tasks?.map((task, index) => (
+              {sortedTasks?.map((task, index) => (
                 <TableRow key={index} task={task} />
               ))}
             </tbody>
@@ -165,14 +210,12 @@ const Table = ({ tasks }) => {
         </div>
       </div>
 
-      {/* TODO */}
       <ConfirmatioDialog
         open={openDialog}
         setOpen={setOpenDialog}
         onClick={deleteHandler}
       />
-
-<AddTask
+      <AddTask
         open={openEdit}
         setOpen={setOpenEdit}
         task={selected}

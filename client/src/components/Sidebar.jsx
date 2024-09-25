@@ -88,7 +88,7 @@ const Sidebar = () => {
         <p className="bg-blue-600 p-2 rounded-full">
           <MdOutlineAddTask className="text-white text-2xl font-black " />
         </p>
-        <span className="text-2xl font-bold text-black">TaskMe</span>
+        <span className="text-2xl font-bold text-black">Task Yatra</span>
       </h1>
 
       <div className="flex-1 flex flex-col gap-y-5 py-8">
@@ -97,10 +97,10 @@ const Sidebar = () => {
         ))}
       </div>
       <div className="">
-        <button className="w-full  flex gap-2 items-center text-lg text-gray-800">
-          <MdSettings />
-          <span>Settings</span>
-        </button>
+      <Link to="/settings" className="w-full flex gap-2 items-center text-lg text-gray-800">
+  <MdSettings />
+  <span>Settings</span>
+</Link>
       </div>
     </div>
   );
