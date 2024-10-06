@@ -353,3 +353,64 @@ export const deleteRestoreTask = async (req, res) => {
     return res.status(400).json({ status: false, message: error.message });
   }
 };
+
+// export const markTaskComplete = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { userId } = req.user;
+
+//     const task = await Task.findById(id);
+//     task.isCompleted = true;
+//     task.completedBy = userId;
+//     task.completedAt = new Date();
+
+//     const activity = {
+//       type: "completed",
+//       activity: "Task marked as complete",
+//       by: userId,
+//     };
+//     task.activities.push(activity);
+
+//     await task.save();
+
+//     res.status(200).json({ status: true, message: "Task marked as complete" });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(400).json({ status: false, message: error.message });
+//   }
+// };
+
+// export const reassignTask = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { newTeam } = req.body;
+//     const { userId } = req.user;
+
+//     const task = await Task.findById(id);
+//     const oldTeam = task.team;
+//     task.team = newTeam;
+
+//     const activity = {
+//       type: "reassigned",
+//       activity: "Task reassigned to new team members",
+//       by: userId,
+//     };
+//     task.activities.push(activity);
+
+//     await task.save();
+
+//     // Notify new team members
+//     const notificationText = "You have been assigned to a new task";
+//     await Notice.create({
+//       team: newTeam,
+//       text: notificationText,
+//       task: task._id,
+//     });
+
+//     res.status(200).json({ status: true, message: "Task reassigned successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(400).json({ status: false, message: error.message });
+//   }
+// };
+

@@ -15,6 +15,7 @@ import Button from "../Button";
 import ConfirmatioDialog from "../Dialogs";
 import { useTrashTaskMutation } from "../../redux/slices/api/taskApiSlice";
 import AddTask from "./AddTask";
+import { useSelector } from "react-redux";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -23,6 +24,8 @@ const ICONS = {
 };
 
 const Table = ({ tasks }) => {
+  const { user } = useSelector((state) => state.auth);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -177,21 +180,23 @@ const Table = ({ tasks }) => {
         </div>
       </td>
 
-      <td className="py-2 flex gap-2 md:gap-4 justify-end">
-        <Button
-          className="text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base"
-          label="Edit"
-          type="button"
-          onClick={() => editTaskHandler(task)}
-        />
+      {user?.add && (
+        <td className="py-2 flex gap-2 md:gap-4 justify-end">
+          <Button
+            className="text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base"
+            label="Edit"
+            type="button"
+            onClick={() => editTaskHandler(task)}
+          />
 
-        <Button
-          className="text-red-700 hover:text-red-500 sm:px-0 text-sm md:text-base"
-          label="Delete"
-          type="button"
-          onClick={() => deleteClicks(task._id)}
-        />
-      </td>
+          <Button
+            className="text-red-700 hover:text-red-500 sm:px-0 text-sm md:text-base"
+            label="Delete"
+            type="button"
+            onClick={() => deleteClicks(task._id)}
+          />
+        </td>
+      )}
     </tr>
   );
 
