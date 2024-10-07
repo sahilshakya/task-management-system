@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AiTwotoneFolderOpen } from "react-icons/ai";
 import { BsThreeDots } from "react-icons/bs";
 import { HiDuplicate } from "react-icons/hi";
-import { MdAdd, MdOutlineEdit } from "react-icons/md";
+import { MdAdd, MdOutlineChangeCircle, MdOutlineEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { Menu, Transition } from "@headlessui/react";
 import AddTask from "./AddTask";
@@ -15,6 +15,7 @@ import {
 } from "../../redux/slices/api/taskApiSlice";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
+import ChangeStatusDialog from "./ChangeStatusDialog";
 
 const TaskDialog = ({ task }) => {
   const { user } = useSelector((state) => state.auth);
@@ -22,6 +23,8 @@ const TaskDialog = ({ task }) => {
   const [open, setOpen] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openStatusChange, setOpenStatusChange] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -80,6 +83,11 @@ const TaskDialog = ({ task }) => {
       icon: <HiDuplicate className="mr-2 h-5 w-5" aria-hidden="true" />,
       onClick: () => duplicateHandler(),
     },
+    {
+      label: "Change Status",
+      icon: <MdOutlineChangeCircle className="mr-2 h-5 w-5" aria-hidden="true" />,
+      onClick: () => setOpenStatusChange(true),
+    }
   ];
 
   const restrictedMenu = [
@@ -164,6 +172,12 @@ const TaskDialog = ({ task }) => {
         open={openDialog}
         setOpen={setOpenDialog}
         onClick={deleteHandler}
+      />
+
+    <ChangeStatusDialog
+        open={openStatusChange}
+        setOpen={setOpenStatusChange}
+        task={task}
       />
     </>
   );

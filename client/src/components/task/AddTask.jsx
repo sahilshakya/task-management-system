@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { dateFormatter } from "../../utils";
 
 
-const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
+export const LISTS = ["TODO", "IN PROGRESS", "COMPLETED"];
 const PRIORIRY = ["HIGH", "MEDIUM", "NORMAL", "LOW"];
 
 const uploadedFileURLs = [];
